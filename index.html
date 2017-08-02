@@ -1,0 +1,279 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="refresh" content="46800">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>WebMinion 0.0</title>
+<script src="jquery-1.10.2.min.js"></script>
+<script src="json5.js"></script>
+<script src="index.js"></script>
+<script src="inobounce.js"></script>
+<script src="jquery.color-2.1.2.min.js"></script>
+<style>
+html, body {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;	
+	color: white;
+	font-family: Arial;
+	background-color: #1e2226;
+}
+
+#log {
+	position: absolute;
+	top: 600px;
+
+	width: 1024px;
+	height: 168px;
+
+	border: 1px solid #cccccc;
+	overflow-y: auto;
+}
+
+#whoseTurn {
+  font-size: 36px;
+  text-align: center;
+  width: 768px;
+  position: absolute;
+  top: 10px;
+}
+
+.fakeCard {
+	width: 100px;
+	height: 100px;
+	border-style: solid;
+	border-width: 5px;
+	border-color: #000000;
+	border-radius: 15px;
+	display: inline-table;
+	position: relative;
+	text-align: center;
+}
+
+.card {
+	width: 100px;
+	height: 100px;
+	border-style: solid;
+	border-width: 5px;
+	border-color: #000000;
+	border-radius: 15px;
+	display: inline-table;
+	position: relative;
+}
+
+.blank {
+	width: 110px;
+	height: 100px;
+	padding: 5px;
+	display: inline-block;
+}
+
+.card.sel {
+	border-color: #ffff00;
+	border-width: 5px;
+	border-style: dashed;
+}
+
+.card.gray {
+	opacity: 0.5;
+}
+
+.card.empty {
+	opacity: 0.2;
+}
+
+#hand .card {
+	top: 50px;
+	margin-bottom: 50px;
+}
+
+#hand .card.played {
+	top: 0px;	
+	margin-bottom: 0px;
+}
+
+.cost {
+	width: 16px;
+	height: 16px;
+	background-color: #FFD700;
+	border-radius: 16px;
+	color: #000000;
+	text-align: center;
+	display: inline-block;
+}
+
+.card .cost {
+	position: absolute;
+	top: 82px;
+	left: 5px;
+}
+
+.card .actions {
+	width: 16px;
+	height: 16px;
+	color: #ffffff;
+	text-align: center;
+	display: inline-block;
+	position: absolute;
+	display: table;
+	top: 82px;
+	left: 75px;
+}
+
+.card .supply {
+	width: 20px;
+	height: 16px;
+	color: #cccccc;
+	text-align: center;
+	display: inline-block;
+	position: absolute;
+	display: table;
+	top: 82px;
+	left: 40px;
+}
+
+.card .label {
+	width: 90px;
+	height: 20px;
+	color: #ffffff;
+	text-align: center;
+	position: absolute;
+	top: 5px;
+	left: 5px;
+}
+
+.card .treasure {
+	width: 32px;
+	height: 32px;
+	line-height: 32px;
+	background-color: #FFD700;
+	border-radius: 32px;
+	font-size: 24px;
+	color: #000000;
+	text-align: center;
+	display: inline-block;
+	position: absolute;
+	top: 35px;
+	left: 35px;
+}
+
+.card .short {
+	width: 90px;
+	height: 40px;
+	color: #ffffff;
+	position: absolute;
+	top: 25px;
+	left: 5px;
+	font-size: 10px;
+}
+
+.btn {
+	width: 100px;
+	height: 50px;
+	font-size: 24px;
+}
+
+#prompt {
+	font-size: 32px;
+}
+
+#deck {
+	position: absolute;
+	top: 260px;
+	left: 800px;
+}
+
+#discard {
+	position: absolute;
+	top: 260px;
+	left: 900px;
+}
+
+#popup {
+	display: none;
+}
+
+#popup .bg {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background-color: #000000;
+	opacity: 0.75;
+	z-index: 2;
+}
+
+#popup .frame {
+	position: absolute;
+	top: 10%;
+	left: 10%;
+	width: 80%;
+	height: 80%;
+	background-color: #cccccc;
+	border: 5px solid #ffffff;
+	border-radius: 15px;
+	z-index: 3;
+}
+
+#popup .title {
+	font-size: 32px;
+	color: #000000;
+	margin-left: 40px;
+}
+
+#popup .body {
+	color: #000000;
+}
+
+#popup .close {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	width: 30px;
+	height: 30px;
+	font-size: 30px;
+	line-height: 30px;
+	text-align: center;
+	border-radius: 30px;
+	background-color: #ff0000;
+	color: #000000;
+}
+
+</style>
+
+</head>
+
+<body>
+<div id="main">
+ <div id="supply"></div>
+ 
+ <div id="turn">Player Turn</div>
+ <div id="status">Turn Status</div>
+
+ <div id="prompt"></div>
+	<button class="confirm btn">Confirm</button>
+	<button class="cancel btn">Cancel</button>
+
+ <div id="hand" class="hand"></div>
+ <div id="deck" class="deck card fake"><div class="label">Draw</div><div class="supply">0</div></div>
+ <div id="discard" class="discard card fake"><div class="label">Discard</div><div class="supply">0</div></div>
+
+ <div id="log">Log</div>
+ 
+ <div id="popup">
+	<div class="bg"></div>
+	<div class="frame">
+		<div class="close">X</div>
+		<div class="title"></div>
+		<div class="body"></div>
+		<button class="confirm btn">Confirm</button>
+		<button class="cancel btn">Cancel</button>
+	</div>
+ </div>
+</div>
+</body>
+</html>
